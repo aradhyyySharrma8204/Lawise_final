@@ -3,8 +3,7 @@
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-
-
+const { sendLoginNotification } = require('../utils/emailService'); // Import email service
 
 //signup function================================================
 const signup = async (req, res) => {
@@ -64,6 +63,9 @@ const login = async (req, res) => {
 
         // Generate token
         const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        // Send email notification
+        sendLoginNotification(email);  // Notify user of login
 
         // Return the token along with the user info
         res.status(200).json({ token, message: "Login successful.",  role: user.role });

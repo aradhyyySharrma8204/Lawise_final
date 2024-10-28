@@ -1,48 +1,47 @@
 import React from 'react';
-import { Link } from 'react-router-dom'; // Import Link from react-router-dom
 
 const LandingPage = () => {
   return (
-    <div className="bg-gray-800 text-white min-h-screen">
+    <div className="bg-gray-800 text-white min-h-screen" style={{ scrollBehavior: 'smooth' }}> {/* Smooth scroll */}
       {/* Navbar */}
       <nav className="bg-gray-900 bg-opacity-80 fixed w-full z-20 top-0 left-0 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
-              <Link to="/" className="text-2xl font-bold text-white">
+              <a href="/" className="text-2xl font-bold text-white"> {/* Home Link */}
                 Lawise
-              </Link>
+              </a>
               <div className="hidden md:block ml-10 space-x-8">
-                <Link to="#services" className="text-gray-300 hover:text-white">
+                <a href="#services" className="text-gray-300 hover:text-white">
                   Services
-                </Link>
-                <Link to="#about" className="text-gray-300 hover:text-white">
+                </a>
+                <a href="#about" className="text-gray-300 hover:text-white">
                   About Us
-                </Link>
-                <Link to="#testimonials" className="text-gray-300 hover:text-white">
+                </a>
+                <a href="#testimonials" className="text-gray-300 hover:text-white">
                   Testimonials
-                </Link>
-                <Link to="#news" className="text-gray-300 hover:text-white">
+                </a>
+                <a href="#news" className="text-gray-300 hover:text-white">
                   News
-                </Link>
-                <Link to="#contact" className="text-gray-300 hover:text-white">
+                </a>
+                <a href="#contact" className="text-gray-300 hover:text-white">
                   Contact
-                </Link>
+                </a>
               </div>
             </div>
             <div className="flex gap-4">
-              <Link
-                to="/signup"
+              <a
+                href="/signup"
                 className="bg-blue-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-blue-700 transition"
               >
                 Sign Up
-              </Link>
-              <Link
-                to="/login"
+              </a>
+              <a
+                href="/login"
                 className="border border-blue-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-blue-600 transition"
               >
                 Login
-              </Link>
+              </a>
             </div>
           </div>
         </div>
@@ -57,9 +56,9 @@ const LandingPage = () => {
         <div className="relative z-10 text-center max-w-2xl">
           <h1 className="text-5xl font-bold mb-4">Your Trusted Legal Partner</h1>
           <p className="text-lg mb-8">Expert legal advice and representation at your fingertips.</p>
-          <Link to="#services" className="text-blue-500 hover:underline">
+          <a href="#services" className="text-blue-500 hover:underline">
             Learn More
-          </Link>
+          </a>
         </div>
       </section>
 
@@ -92,12 +91,12 @@ const LandingPage = () => {
             With over 20 years of experience, we provide top-tier legal services to our clients.
             Our team is dedicated to delivering results that matter.
           </p>
-          <Link
-            to="/team" // Change to Link component for redirection
+          <a
+            href="/team" // Changed to <a> for direct link
             className="mt-6 inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
           >
             Meet Our Team
-          </Link>
+          </a>
         </div>
       </section>
 
