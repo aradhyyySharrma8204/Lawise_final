@@ -2,190 +2,382 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const ClientDashboard = () => {
-    const [profileImage, setProfileImage] = useState(null);
-    const [name, setName] = useState('');
-    const [phone, setPhone] = useState('');
-    const [personalDetails, setPersonalDetails] = useState({});
-    const [caseReport, setCaseReport] = useState('');
-    const [legalProblem, setLegalProblem] = useState('');
     const [greeting, setGreeting] = useState('');
-
-    const legalIssues = [
-        "Divorce",
-        "Contract Issues",
-        "Property Disputes",
+    const [emoji, setEmoji] = useState('');
+    const [showForm, setShowForm] = useState(false);
+    const [clientInfo, setClientInfo] = useState({
+        email: '',
+        name: '',
+        phoneNumber: '',
+        address: '',
+        aadharDetails: '',
+        legalInfo: '',
+        caseDetailsPDF: '',
+        caseCategory: '',
+        uploadedPhoto: null 
+    });
+    const [uploadedPhotoPreview, setUploadedPhotoPreview] = useState(null);
+    const [profilePic, setProfilePic] = useState(''); 
+    const [caseCategories] = useState([
+        "Corporate Law",
+        "Family Law",
         "Criminal Defense",
-        "Employment Issues",
-        // Add more issues as needed
-    ];
+        // Add other categories as needed
+    ]);
+    const [lawyers, setLawyers] = useState([]);
 
-    // Greeting based on time of day
-    useEffect(() => {
-        const currentHour = new Date().getHours();
-        let greetingMessage = 'Hello!';
-        if (currentHour < 12) {
-            greetingMessage = 'Good Morning!';
-        } else if (currentHour < 18) {
-            greetingMessage = 'Good Afternoon!';
-        } else {
-            greetingMessage = 'Good Evening!';
+   /* const handleSearchLawyers = () => {
+        alert("function handlesearchlawyer tak pahuch chuka hai ")
+        if (clientInfo.caseCategory) {
+            axios.get(`http://localhost:5000/api/lawyers?category=${clientInfo.caseCategory}`)
+                .then(response => {
+                    console.log("lawyers fetch ho rhey hai")
+                    setLawyers(response.data); // Adjust based on your backend response
+                })
+                .catch(error => {
+                    console.error("Error fetching lawyers:", error);
+                });
         }
-        setGreeting(greetingMessage);
-        
-        // Fetch user info from the database (you can adjust this URL and logic as per your backend)
-        const fetchUserInfo = async () => {
-            const response = await axios.get('http://localhost:5000/api/user-info'); // Adjust the endpoint accordingly
-            setName(response.data.name);
-            setProfileImage(response.data.profileImage); // Assuming the response has these fields
-            setPhone(response.data.phone); // Assuming the response has these fields
-        };
+    };*/
 
-        fetchUserInfo();
+    const handleSearchLawyers = () => {
+        alert("Function handleSearchLawyers reached!");
+    
+        // Check if a case category is selected
+        if (!clientInfo.caseCategory) {
+            alert("Please select a case category to search lawyers.");
+            return; // Early return if no category is selected
+        }
+    
+        // Construct the API URL based on the selected case category
+        const apiUrl = `http://localhost:5000/api/lawyers/${encodeURIComponent(clientInfo.caseCategory)}`;
+    
+        axios.get(apiUrl)
+            .then(response => {
+                console.log("Lawyers fetched successfully:", response.data);
+    
+                // Assuming response.data contains the array of lawyers directly
+                setLawyers(response.data); // Adjust this if your API response structure is different
+    
+                // Display the fetched data in alert for verification
+                alert("Lawyers fetched: " + JSON.stringify(response.data, null, 2)); // Display fetched data in a readable format
+           
+            })
+            .catch(error => {
+                console.error("Error fetching lawyers:", error);
+                alert("Error fetching lawyers. Please try again."); // Notify the user
+            });
+    };
+    
+
+    useEffect(() => {
+        const hour = new Date().getHours();
+        if (hour < 12) {
+            setGreeting("Good Morning");
+            setEmoji("🌞");
+        } else if (hour < 18) {
+            setGreeting("Good Afternoon");
+            setEmoji("☀️");
+        } else {
+            setGreeting("Good Evening");
+            setEmoji("🌜");
+        }
     }, []);
 
-    const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setProfileImage(reader.result);
-                // Optionally, send the new image to your backend
-                axios.put('http://localhost:5000/api/update-profile', {
-                    name,
-                    profileImage: reader.result, // Sending the updated image to backend
-                });
-            };
-            reader.readAsDataURL(file);
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setClientInfo({ ...clientInfo, [name]: value });
+    };
+
+    const handleCategoryChange = (e) => {
+        const value = e.target.value;
+        setClientInfo({ ...clientInfo, caseCategory: value });
+    };
+
+    const handlePhotoUpload = (event) => {
+        const file = event.target.files[0];
+        if (!file || (file.type !== 'image/jpeg' && file.type !== 'image/png')) {
+            alert('Please upload a JPEG or PNG image.');
+            return;
+        }
+        setUploadedPhotoPreview(URL.createObjectURL(file));
+        setClientInfo({ ...clientInfo, uploadedPhoto: file });
+    };
+
+    const handlePDFUpload = (event) => {
+        const file = event.target.files[0];
+        if (!file || file.type !== 'application/pdf') {
+            alert('Please upload a PDF document.');
+            return;
+        }
+        setClientInfo({ ...clientInfo, caseDetailsPDF: file });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('email', clientInfo.email);
+        formData.append('name', clientInfo.name);
+        formData.append('phoneNumber', clientInfo.phoneNumber);
+        formData.append('address', clientInfo.address);
+        formData.append('aadharDetails', clientInfo.aadharDetails);
+        formData.append('legalInfo', clientInfo.legalInfo);
+        formData.append('caseCategory', clientInfo.caseCategory);
+        formData.append('uploadedPhoto', clientInfo.uploadedPhoto);
+        formData.append('caseDetailsPDF', clientInfo.caseDetailsPDF);
+
+        try {
+            const response = await axios.post('http://localhost:5000/clientinfo/clientinfo', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            console.log('Client info submitted:', response.data);
+            setShowForm(false);
+            setClientInfo({
+                email: '',
+                name: '',
+                phoneNumber: '',
+                address: '',
+                aadharDetails: '',
+                legalInfo: '',
+                caseCategory: '',
+                uploadedPhoto: null
+            });
+            setUploadedPhotoPreview(null);
+        } catch (error) {
+            console.error("Error submitting client info:", error);
         }
     };
 
-    const handlePersonalDetailsSubmit = async (e) => {
-        e.preventDefault();
-        // Save personal details to MongoDB
-        await axios.post('http://localhost:5000/api/personal-details', personalDetails);
-        alert('Personal details saved successfully!');
+    const handleProfilePicUpload = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
+                alert('Please upload a JPEG or PNG image.');
+                return;
+            }
+            setProfilePic(URL.createObjectURL(file));
+        }
     };
 
-    const handleCaseReportSubmit = async (e) => {
-        e.preventDefault();
-        // Submit case report to MongoDB
-        await axios.post('http://localhost:5000/api/case-report', {
-            name,
-            phone,
-            caseReport,
-        });
-        alert('Case report submitted successfully!');
+    const LawyerCard = ({ lawyer }) => {
+        // Construct the URL for the uploaded photo
+        const photoUrl = `http://localhost:5000/api/${lawyer.uploadedPhoto.replace(/\\/g, '/')}`;
+    
+        return (
+            <div className="card">
+                <img src={photoUrl} alt={`${lawyer.name}'s profile`} className="card-img" />
+                <div className="card-body">
+                    <h5 className="card-title">{lawyer.name}</h5>
+                    <p className="card-text">{lawyer.email}</p>
+                    <p className="card-text">{lawyer.phoneNumber}</p>
+                </div>
+            </div>
+        );
     };
+    
+    
+
+
+  //==================================  
 
     return (
-        <div className="flex flex-col md:flex-row min-h-screen bg-gray-100 p-6">
-            {/* Profile Section */}
-            <div className="w-full md:w-1/3 p-6 bg-white rounded-lg shadow-md">
-                <h2 className="text-2xl font-bold mb-4">{greeting} {name}</h2>
-                <div className="flex flex-col items-center mb-4">
-                    {profileImage ? (
-                        <img
-                            src={profileImage}
-                            alt="Profile"
-                            className="w-32 h-32 rounded-full mb-2"
-                        />
+        <div className="flex h-screen bg-gradient-to-r from-indigo-100 to-purple-200">
+            {/* Left Sidebar - Profile Section */}
+            <div className="w-1/4 bg-white flex flex-col items-center py-8 shadow-lg rounded-tr-lg rounded-br-lg">
+                <h2 className="text-2xl font-bold text-purple-800 mb-2 animate-pulse">
+                    {greeting} {emoji}
+                </h2>
+
+                {/* Larger Circular Profile Picture */}
+                <div className="w-32 h-32 rounded-full border-4 border-purple-500 overflow-hidden mb-4 cursor-pointer" onClick={() => document.getElementById('profilePicInput').click()}>
+                    {profilePic ? (
+                        <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
                     ) : (
-                        <div className="w-32 h-32 rounded-full bg-gray-300 mb-2"></div>
+                        <div className="flex items-center justify-center h-full text-gray-400">No Image</div>
                     )}
-                    <h3 className="text-xl">{name}</h3>
-                    <p className="text-gray-600">{phone}</p>
-                    <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        className="mt-2 mb-4"
-                    />
-                    <button
-                        onClick={() => setName(prompt('Enter your name:', name))}
-                        className="py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-200"
-                    >
-                        Edit
-                    </button>
                 </div>
 
-                <button
-                    onClick={() => document.getElementById('personalDetailsForm').classList.toggle('hidden')}
-                    className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-200 mb-4"
-                >
-                    Fill Personal Details
-                </button>
-
-                {/* Personal Details Form */}
-                <form id="personalDetailsForm" className="hidden" onSubmit={handlePersonalDetailsSubmit}>
-                    <input
-                        type="text"
-                        placeholder="Address"
-                        onChange={(e) => setPersonalDetails({ ...personalDetails, address: e.target.value })}
-                        className="w-full p-2 border border-gray-300 rounded mb-2"
-                    />
-                    <input
-                        type="text"
-                        placeholder="Date of Birth"
-                        onChange={(e) => setPersonalDetails({ ...personalDetails, dob: e.target.value })}
-                        className="w-full p-2 border border-gray-300 rounded mb-2"
-                    />
-                    <button
-                        type="submit"
-                        className="w-full py-2 bg-green-600 text-white rounded hover:bg-green-700 transition duration-200"
-                    >
-                        Save Details
-                    </button>
-                </form>
+                <input
+                    type="file"
+                    accept="image/jpeg,image/png"
+                    id="profilePicInput"
+                    onChange={handleProfilePicUpload}
+                    className="hidden"
+                />
 
                 <button
-                    onClick={() => document.getElementById('caseReportForm').classList.toggle('hidden')}
-                    className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-200"
+                    onClick={() => setShowForm(true)}
+                    className="mt-4 bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600 transition"
                 >
-                    Submit Case Report
+                    Add Client Info
                 </button>
-
-                {/* Case Report Form */}
-                <form id="caseReportForm" className="hidden" onSubmit={handleCaseReportSubmit}>
-                    <textarea
-                        placeholder="Describe your case..."
-                        value={caseReport}
-                        onChange={(e) => setCaseReport(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded mb-2"
-                        required
-                    />
-                    <button
-                        type="submit"
-                        className="w-full py-2 bg-green-600 text-white rounded hover:bg-green-700 transition duration-200"
-                    >
-                        Submit Report
-                    </button>
-                </form>
+             
             </div>
 
-            {/* Search Bar Section */}
-            <div className="w-full md:w-2/3 p-6">
-                <h2 className="text-2xl font-bold mb-4">Search for Legal Problems</h2>
-                <div className="flex items-center">
-                    <input
-                        type="text"
-                        placeholder="Search for legal issues..."
-                        className="w-full p-2 border border-gray-300 rounded mb-4 md:mr-4"
-                    />
+            {/* Right Side - Main Dashboard Content */}
+            <div className="w-3/4 p-10 flex flex-col">
+                <h2 className="text-3xl font-semibold text-gray-800 mb-4">Client Dashboard</h2>
+
+                {/* Client Info Form Modal */}
+                {showForm && (
+                    <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+                        <div className="bg-white p-6 rounded-lg shadow-lg w-96 max-h-[80vh] overflow-y-auto">
+                            <h3 className="text-lg font-semibold text-gray-800 mb-4">Submit Your Information</h3>
+                            <form onSubmit={handleSubmit}>
+                                <input
+                                    type="text"
+                                    name="email"
+                                    placeholder="example@gmail.com"
+                                    value={clientInfo.email}
+                                    onChange={handleInputChange}
+                                    required
+                                    className="w-full mb-2 p-2 border border-gray-300 rounded-md"
+                                />
+                                <input
+                                    type="text"
+                                    name="name"
+                                    placeholder="Your Name"
+                                    value={clientInfo.name}
+                                    onChange={handleInputChange}
+                                    required
+                                    className="w-full mb-2 p-2 border border-gray-300 rounded-md"
+                                />
+                                <input
+                                    type="text"
+                                    name="phoneNumber"
+                                    placeholder="Phone Number"
+                                    value={clientInfo.phoneNumber}
+                                    onChange={handleInputChange}
+                                    required
+                                    className="w-full mb-2 p-2 border border-gray-300 rounded-md"
+                                />
+                                <input
+                                    type="text"
+                                    name="address"
+                                    placeholder="Address"
+                                    value={clientInfo.address}
+                                    onChange={handleInputChange}
+                                    required
+                                    className="w-full mb-2 p-2 border border-gray-300 rounded-md"
+                                />
+                                <input
+                                    type="text"
+                                    name="aadharDetails"
+                                    placeholder="Aadhar Details"
+                                    value={clientInfo.aadharDetails}
+                                    onChange={handleInputChange}
+                                    required
+                                    className="w-full mb-2 p-2 border border-gray-300 rounded-md"
+                                />
+                                <input
+                                    type="text"
+                                    name="legalInfo"
+                                    placeholder="Legal Information"
+                                    value={clientInfo.legalInfo}
+                                    onChange={handleInputChange}
+                                    required
+                                    className="w-full mb-2 p-2 border border-gray-300 rounded-md"
+                                />
+
+                                <select
+                                    name="caseCategory"
+                                    value={clientInfo.caseCategory}
+                                    onChange={handleCategoryChange}
+                                    className="w-full mb-2 p-2 border border-gray-300 rounded-md"
+                                    required
+                                >
+                                    <option value="" disabled>Select Case Category</option>
+                                    {caseCategories.map((category) => (
+                                        <option key={category} value={category}>{category}</option>
+                                    ))}
+                                </select>
+
+                                {/* Photo Upload with Label */}
+                                <label className="block mb-1 text-gray-700">Upload Your Photograph:</label>
+                                <input
+                                    type="file"
+                                    accept="image/jpeg,image/png"
+                                    onChange={handlePhotoUpload}
+                                    className="w-full mb-4 p-2 border border-gray-300 rounded-md"
+                                    required
+                                />
+                                {uploadedPhotoPreview && (
+                                    <div className="mt-2">
+                                        <p className="text-gray-500">Uploaded Image:</p>
+                                        <img src={uploadedPhotoPreview} alt="Uploaded Preview" className="w-20 h-20 object-cover" />
+                                    </div>
+                                )}
+
+                                {/* PDF Upload */}
+                                <label className="block mb-1 text-gray-700">Upload Case Details (PDF):</label>
+                                <input
+                                    type="file"
+                                    accept="application/pdf"
+                                    onChange={handlePDFUpload}
+                                    className="w-full mb-4 p-2 border border-gray-300 rounded-md"
+                                    required
+                                />
+                                <button
+                                    type="submit"
+                                    className="bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600 transition"
+                                >
+                                    Submit
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowForm(false)}
+                                    className="mt-2 bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400 transition"
+                                >
+                                    Close
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                )}
+
+                {/* Search Bar for Lawyers */}
+                <div className="my-6">
                     <select
-                        value={legalProblem}
-                        onChange={(e) => setLegalProblem(e.target.value)}
-                        className="p-2 border border-gray-300 rounded"
+                        value={clientInfo.caseCategory}
+                        onChange={handleCategoryChange}
+                        className="mb-4 p-2 border border-gray-300 rounded-md"
                     >
-                        <option value="">Select a legal problem</option>
-                        {legalIssues.map((issue) => (
-                            <option key={issue} value={issue}>{issue}</option>
+                        <option value="" disabled>Select a case category to search lawyers</option>
+                        {caseCategories.map((category) => (
+                            <option key={category} value={category}>{category}</option>
                         ))}
                     </select>
                     <button
-                        className="ml-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-200"
+                        onClick={handleSearchLawyers}
+                        className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
+                        
                     >
-                        Search
+                        Search Lawyers
                     </button>
+                </div>
+
+                {/* Display Lawyers as Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {lawyers.map((lawyer) => (
+                        <div key={lawyer._id} className="border rounded-md shadow-md p-4">
+                
+                <div className="mb-4">
+                <img 
+    src={lawyer.uploadedPhoto ? `http://localhost:5000/uploads/${lawyer.uploadedPhoto.split('\\').pop()}` : '/path/to/default-image.jpg'} 
+    alt="Lawyer Profile" 
+/>
+            </div>
+            {console.log('Lawyer Photo Path:', lawyer.uploadedPhoto)
+            }
+            
+                            <h3 className="text-lg font-semibold">{lawyer.name}</h3>
+                            <p className="text-gray-600">Specialization: {lawyer.caseCategory}</p>
+                            <p className="text-gray-600">Email: {lawyer.email}</p>
+                            <p className="text-gray-600">Contact: {lawyer.phoneNumber}</p>
+                        </div>
+                    ))}
                 </div>
             </div>
         </div>

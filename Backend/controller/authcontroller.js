@@ -74,7 +74,23 @@ const login = async (req, res) => {
         res.status(500).json({ message: "Server error." });
     }
 
+    
+
 };
 
 
-module.exports = { signup ,login};
+const fetch_from_user = async (req, res) => {
+    try {
+        // Assuming `req.body.email` contains the email from the login request
+        const user = await User.findOne({ email: req.body.email }).select('name');
+        if (!user) return res.status(404).json({ message: "User not found" });
+        res.status(200).json(user);
+    } catch (error) {
+        console.error("Error fetching user info:", error);
+        res.status(500).json({ message: "Server error." });
+    }
+};
+
+
+
+module.exports = { signup ,login,fetch_from_user};

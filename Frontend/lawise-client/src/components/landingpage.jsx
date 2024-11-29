@@ -1,30 +1,49 @@
-import React from 'react';
+import React, { useState } from "react";
+import { FaCommentDots } from "react-icons/fa";
 
 const LandingPage = () => {
+  const [showModal, setShowModal] = useState(false);
+  const [showChat, setShowChat] = useState(false);
+
+  const handleLogoClick = () => {
+    setShowModal(true);
+  };
+
+  const handleModalClose = () => {
+    setShowModal(false);
+  };
+
+  const handleChatToggle = () => {
+    window.open("https://se-chatbot.onrender.com/", "_blank");
+  };
+
   return (
-    <div className="bg-gray-800 text-white min-h-screen" style={{ scrollBehavior: 'smooth' }}> {/* Smooth scroll */}
+    <div className="bg-gray-800 text-white min-h-screen" style={{ scrollBehavior: "smooth" }}>
       {/* Navbar */}
-      <nav className="bg-gray-900 bg-opacity-80 fixed w-full z-20 top-0 left-0 shadow-lg">
+      <nav className="bg-gray-900 bg-opacity-80 fixed w-full z-20 top-0 left-0 shadow-lg backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
-              <a href="/" className="text-2xl font-bold text-white"> {/* Home Link */}
+              <button
+                onClick={handleLogoClick}
+                className="text-2xl font-bold text-white tracking-wide hover:text-blue-500 transition"
+              >
                 Lawise
-              </a>
-              <div className="hidden md:block ml-10 space-x-8">
-                <a href="#services" className="text-gray-300 hover:text-white">
+              </button>
+              <div className="hidden md:flex ml-10 space-x-8">
+                <a href="#services" className="text-gray-300 hover:text-white transition duration-300">
                   Services
                 </a>
-                <a href="#about" className="text-gray-300 hover:text-white">
+                <a href="#about" className="text-gray-300 hover:text-white transition duration-300">
                   About Us
                 </a>
-                <a href="#testimonials" className="text-gray-300 hover:text-white">
+                <a href="#testimonials" className="text-gray-300 hover:text-white transition duration-300">
                   Testimonials
                 </a>
-                <a href="#news" className="text-gray-300 hover:text-white">
+                <a href="#news" className="text-gray-300 hover:text-white transition duration-300">
                   News
                 </a>
-                <a href="#contact" className="text-gray-300 hover:text-white">
+                <a href="#contact" className="text-gray-300 hover:text-white transition duration-300">
                   Contact
                 </a>
               </div>
@@ -32,13 +51,13 @@ const LandingPage = () => {
             <div className="flex gap-4">
               <a
                 href="/signup"
-                className="bg-blue-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-blue-700 transition"
+                className="bg-blue-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-blue-700 transition duration-300 shadow-md"
               >
                 Sign Up
               </a>
               <a
                 href="/login"
-                className="border border-blue-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-blue-600 transition"
+                className="border border-blue-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-blue-600 transition duration-300 shadow-md"
               >
                 Login
               </a>
@@ -50,97 +69,96 @@ const LandingPage = () => {
       {/* Hero Section */}
       <section
         className="relative h-screen flex flex-col justify-center items-center bg-cover bg-center"
-        style={{ backgroundImage: 'url("/path/to/hero-image.jpg")', marginTop: '64px' }}
+        style={{
+          backgroundImage: 'url("/path/to/hero-image.jpg")',
+          marginTop: "64px",
+        }}
       >
-        <div className="absolute inset-0 bg-gray-900 bg-opacity-60"></div>
-        <div className="relative z-10 text-center max-w-2xl">
-          <h1 className="text-5xl font-bold mb-4">Your Trusted Legal Partner</h1>
-          <p className="text-lg mb-8">Expert legal advice and representation at your fingertips.</p>
-          <a href="#services" className="text-blue-500 hover:underline">
+        <div className="absolute inset-0 bg-gray-900 bg-opacity-70"></div>
+        <div className="relative z-10 text-center max-w-3xl px-4">
+          <h1 className="text-5xl font-bold mb-6 tracking-tight text-white leading-snug">
+            Your Trusted Legal Partner
+          </h1>
+          <p className="text-lg mb-8 text-gray-300">
+            Expert legal advice and representation at your fingertips.
+          </p>
+          <a
+            href="#services"
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition shadow-lg"
+          >
             Learn More
           </a>
         </div>
       </section>
 
-      {/* Services Section */}
-      <section id="services" className="py-16 bg-gray-100 text-gray-800">
-        <div className="max-w-6xl mx-auto text-center mb-12">
-          <h2 className="text-4xl font-semibold">Our Services</h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          <div className="p-6 bg-white rounded-lg shadow hover:shadow-lg">
-            <h3 className="text-2xl font-semibold mb-2">Corporate Law</h3>
-            <p>Expert legal assistance for your corporate needs.</p>
-          </div>
-          <div className="p-6 bg-white rounded-lg shadow hover:shadow-lg">
-            <h3 className="text-2xl font-semibold mb-2">Family Law</h3>
-            <p>Reliable and compassionate family legal services.</p>
-          </div>
-          <div className="p-6 bg-white rounded-lg shadow hover:shadow-lg">
-            <h3 className="text-2xl font-semibold mb-2">Criminal Defense</h3>
-            <p>Experienced defense to protect your rights.</p>
+      {/* Modal for Logo Click */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white text-gray-800 rounded-lg shadow-lg p-6 w-96">
+            <h2 className="text-xl font-bold mb-4">Welcome to Lawise!</h2>
+            <p className="mb-6 text-gray-600">
+              Lawise: Building trust and solutions with every case.
+            </p>
+            <button
+              onClick={handleModalClose}
+              className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+            >
+              Close
+            </button>
           </div>
         </div>
-      </section>
+      )}
 
-      {/* About Section */}
-      <section id="about" className="py-16 bg-white text-gray-800">
-        <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-4xl font-semibold mb-4">About Us</h2>
-          <p className="max-w-3xl mx-auto">
-            With over 20 years of experience, we provide top-tier legal services to our clients.
-            Our team is dedicated to delivering results that matter.
-          </p>
-          <a
-            href="/team" // Changed to <a> for direct link
-            className="mt-6 inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
-          >
-            Meet Our Team
-          </a>
-        </div>
-      </section>
+      {/* Chatbot Icon */}
+      <button
+        className="fixed bottom-6 right-6 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition duration-300 z-50"
+        onClick={handleChatToggle}
+      >
+        <FaCommentDots size={24} />
+      </button>
 
-      {/* Testimonials Section */}
-      <section id="testimonials" className="py-16 bg-gray-100 text-gray-800">
-        <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-4xl font-semibold mb-8">Client Testimonials</h2>
-          <div className="text-lg italic">“Incredible service. I felt supported every step of the way!”</div>
-        </div>
-      </section>
-
-      {/* News Bulletin Section */}
-      <section id="news" className="py-16 bg-white text-gray-800">
-        <div className="max-w-6xl mx-auto text-center mb-12">
-          <h2 className="text-4xl font-semibold">Latest News</h2>
-          <p className="text-lg text-gray-600">Stay updated with the latest news and insights in the legal world.</p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          <div className="p-6 bg-gray-100 rounded-lg shadow hover:shadow-lg">
-            <h3 className="text-2xl font-semibold mb-2">New Legal Reforms 2023</h3>
-            <p className="text-gray-700">Discover the latest changes in legal regulations and how they impact businesses and individuals.</p>
-            <a href="https://www.mha.gov.in/en/commoncontent/new-criminal-laws" className="text-blue-600 hover:underline mt-4 block">Read More</a>
-          </div>
-          <div className="p-6 bg-gray-100 rounded-lg shadow hover:shadow-lg">
-            <h3 className="text-2xl font-semibold mb-2">Understanding Your Rights</h3>
-            <p className="text-gray-700">A guide to understanding your legal rights in everyday situations.</p>
-            <a href="https://cjp.org.in/section/know-your-rights/" className="text-blue-600 hover:underline mt-4 block">Read More</a>
-          </div>
-          <div className="p-6 bg-gray-100 rounded-lg shadow hover:shadow-lg">
-            <h3 className="text-2xl font-semibold mb-2">Top Legal Cases of the Year</h3>
-            <p className="text-gray-700">An overview of the most influential cases and verdicts this year.</p>
-            <a href="https://www.sci.gov.in/landmark-judgment-summaries/" className="text-blue-600 hover:underline mt-4 block">Read More</a>
+      {/* Chat Modal */}
+      {showChat && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white text-gray-800 rounded-lg shadow-lg p-6 w-80">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">Chat with Us</h3>
+              <button
+                onClick={handleChatToggle}
+                className="text-gray-500 hover:text-gray-800 transition duration-300"
+              >
+                ✖
+              </button>
+            </div>
+            <p className="text-gray-600">Hi! How can we assist you today?</p>
+            <div className="mt-4">
+              <textarea
+                className="w-full border border-gray-300 rounded-md p-2"
+                rows="4"
+                placeholder="Type your message..."
+              ></textarea>
+              <button className="mt-2 w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition">
+                Send
+              </button>
+            </div>
           </div>
         </div>
-      </section>
+      )}
 
       {/* Footer */}
       <footer id="contact" className="py-8 bg-gray-800 text-white">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center">
           <p>&copy; 2023 Lawise. All rights reserved.</p>
           <div className="flex gap-4">
-            <a href="#" className="hover:underline">Privacy Policy</a>
-            <a href="#" className="hover:underline">Terms of Service</a>
-            <a href="#" className="hover:underline">Contact Us</a>
+            <a href="#" className="hover:underline">
+              Privacy Policy
+            </a>
+            <a href="#" className="hover:underline">
+              Terms of Service
+            </a>
+            <a href="#" className="hover:underline">
+              Contact Us
+            </a>
           </div>
         </div>
       </footer>

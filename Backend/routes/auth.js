@@ -1,13 +1,14 @@
 // routes/auth.js
 const express = require('express');
-const { signup, login } = require('../controller/authcontroller');
+const { signup, login,fetch_from_user } = require('../controller/authcontroller');
 const authMiddleware = require('../controller/authmiddleware');
 
 const router = express.Router();
 
 router.post('/signup', signup);
 router.post('/login', login);
-
+//router.get('/fetch_from_user',fetch_from_user);
+router.post('/fetch_user_info', fetch_from_user);
 
 
 router.post('/test-email', async (req, res) => {

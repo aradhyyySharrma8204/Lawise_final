@@ -1,18 +1,24 @@
-// server.js
+// index.js
 const express = require('express');
 const mongoose = require('mongoose');
 require('dotenv').config();
+const path = require('path');
 const cors = require('cors');
 const RouterProduct=require("./routes/auth");
 const authRoutes = require("./routes/auth"); // Import auth routes
-
+const clientInfoRoute = require('./routes/clientInfoRoute');
+const lawyerRoutes = require('./routes/lawyerRoutes');
+const caseFilterRoutes = require('./routes/caseFilter');
 // Initialize app
 const app = express();
 const PORT = process.env.PORT || 5000;
+const clientRoutes = require('./routes/clients'); // Assuming the above code is in "clients.js"
+
 
 // Middleware
 app.use(cors()); // Enable CORS
 app.use(express.json()); // For parsing application/json
+app.use('/clients', clientRoutes);
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI, { 
@@ -30,7 +36,16 @@ mongoose.connect(process.env.MONGO_URI, {
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
-app.use("/", authRoutes); // Use auth routes
 
 
+app.use(express.urlencoded({ extended: true })); 
+//app.use("/", authRoutes); // Use auth routes
+
+app.use('/clientinfo', clientInfoRoute);
 app.use("/",RouterProduct);
+app.use('/lawyer', lawyerRoutes); // Lawyer routes
+
+
+
+app.use('/api', caseFilterRoutes);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
