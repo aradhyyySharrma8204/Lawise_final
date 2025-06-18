@@ -3,103 +3,111 @@ import { useNavigate } from 'react-router-dom';
 import AuthContext from '../context/authcontext';
 
 const Login = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [successMessage, setSuccessMessage] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
-    const { login } = useContext(AuthContext);
-    const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [status, setStatus] = useState({ loading: false, message: '', error: '' });
+  const { login } = useContext(AuthContext);
+  const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setSuccessMessage('');
-        setErrorMessage('');
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatus({ loading: true, message: '', error: '' });
 
-        const success = await login(email, password);
-        if (success) {
-            const userData = JSON.parse(localStorage.getItem('user'));
-            const role = userData.role;
+    const success = await login(email, password);
+    if (success) {
+      const userData = JSON.parse(localStorage.getItem('user'));
+      const role = userData.role;
 
-            setSuccessMessage('🎉 Successfully logged in! 🎉');
+      setStatus({ loading: false, message: '🎉 Logged in successfully!', error: '' });
 
-            if (role === 'admin') navigate('/admin-dashboard');
-            else if (role === 'lawyer') navigate('/lawyer-dashboard');
-            else if (role === 'client') navigate('/client-dashboard');
-        } else {
-            setErrorMessage('❌ Login failed! Please check your email and password. ❌');
-        }
-    };
+      if (role === 'admin') navigate('/admin-dashboard');
+      else if (role === 'lawyer') navigate('/lawyer-dashboard');
+      else navigate('/client-dashboard');
+    } else {
+      setStatus({ loading: false, error: '❌ Login failed. Please check your credentials.', message: '' });
+    }
+  };
 
-    return (
-        <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 p-6">
-            <div className="absolute inset-0 opacity-20 bg-cover bg-center" style={{ backgroundImage: 'url(https://source.unsplash.com/random)' }}></div>
-            <form 
-                onSubmit={handleSubmit} 
-                className="bg-white/10 backdrop-blur-lg p-10 rounded-2xl shadow-2xl max-w-md w-full space-y-6 relative border border-white/20"
-            >
-                <h2 className="text-4xl font-extrabold text-white text-center">Welcome Back</h2>
-                <p className="text-center text-white/70 text-md mb-6">Sign in to continue</p>
+  return (
+    <div className="min-h-screen flex items-center bg-white dark:bg-black">
+      
+      {/* Left Banner */}
+      <div className="hidden lg:flex w-1/2 bg-black text-white px-16 py-20 flex-col justify-center">
+        <h1 className="text-4xl font-extrabold mb-4">Welcome back to Lawise</h1>
+        <p className="text-lg text-gray-300 mb-8">
+          Access your dashboard, connect with clients or lawyers, and manage your legal work.
+        </p>
+        <img
+          src="https://github.githubassets.com/images/modules/signup/astrocat.png"
+          alt="Login illustration"
+          className="w-3/4 object-contain mt-6"
+        />
+      </div>
 
-                {successMessage && (
-                    <div className="bg-green-50/90 border-l-4 border-green-500 text-green-700 p-4 rounded-lg shadow-sm transition duration-300">
-                        <p>{successMessage}</p>
-                    </div>
-                )}
+      {/* Login Form */}
+      <div className="w-full lg:w-1/2 px-6 sm:px-12 md:px-20 py-16">
+        <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-8">Log in to Lawise</h2>
 
-                {errorMessage && (
-                    <div className="bg-red-50/90 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow-sm transition duration-300">
-                        <p>{errorMessage}</p>
-                    </div>
-                )}
+        {status.message && (
+          <div className="bg-green-100 text-green-800 px-4 py-2 rounded mb-4">{status.message}</div>
+        )}
+        {status.error && (
+          <div className="bg-red-100 text-red-800 px-4 py-2 rounded mb-4">{status.error}</div>
+        )}
 
-                <div>
-                    <label htmlFor="email" className="block text-white/80 font-semibold mb-2">Email Address</label>
-                    <input
-                        id="email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="example@domain.com"
-                        required
-                        className="w-full p-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 transition duration-200 ease-in-out text-gray-900 placeholder-gray-400 bg-white/80"
-                    />
-                </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+            <input
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="mt-1 w-full px-4 py-2 border rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
+            />
+          </div>
 
-                <div>
-                    <label htmlFor="password" className="block text-white/80 font-semibold mb-2">Password</label>
-                    <input
-                        id="password"
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Enter your password"
-                        required
-                        className="w-full p-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 transition duration-200 ease-in-out text-gray-900 placeholder-gray-400 bg-white/80"
-                    />
-                </div>
+          <div>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
+            <input
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="mt-1 w-full px-4 py-2 border rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
+            />
+          </div>
 
-                <div className="flex items-center justify-between mt-4">
-                    <label className="flex items-center text-white/70">
-                        <input type="checkbox" className="mr-2 h-4 w-4 text-purple-500 focus:ring-purple-400 border-gray-300 rounded" />
-                        Remember Me
-                    </label>
-                    <a href="/forgot-password" className="text-purple-300 hover:underline text-sm">Forgot Password?</a>
-                </div>
+          <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
+            <label className="flex items-center">
+              <input type="checkbox" className="mr-2" />
+              Remember me
+            </label>
+            <a href="#" className="hover:underline text-blue-600 dark:text-blue-400">Forgot password?</a>
+          </div>
 
-                <button
-                    type="submit"
-                    className="w-full py-3 mt-6 font-semibold text-white rounded-lg bg-gradient-to-r from-purple-600 to-blue-500 hover:opacity-90 transition duration-300 transform hover:scale-105 shadow-md"
-                >
-                    Log In
-                </button>
+          <button
+            type="submit"
+            disabled={status.loading}
+            className={`w-full py-2 font-semibold text-white rounded-md transition ${
+              status.loading ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'
+            }`}
+          >
+            {status.loading ? 'Logging in...' : 'Log In'}
+          </button>
+        </form>
 
-                <p className="text-center text-white/70 text-sm mt-6">
-                    Don’t have an account? 
-                    <a href="/signup" className="text-purple-300 hover:text-purple-400 font-medium transition-colors duration-200"> Sign up</a>
-                </p>
-            </form>
-        </div>
-    );
+        <p className="text-sm text-center text-gray-500 dark:text-gray-400 mt-6">
+          Don’t have an account?{' '}
+          <a href="/signup" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+            Sign up
+          </a>
+        </p>
+      </div>
+    </div>
+  );
 };
 
 export default Login;
